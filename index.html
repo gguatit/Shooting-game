@@ -821,6 +821,19 @@
         }
       }
     })();
+
+    // Data SDK가 없거나 초기화되지 않은 경우, localStorage에서 저장된 랭킹을 불러옵니다.
+    if (!window.dataSdk) {
+      try {
+        const localRanks = JSON.parse(localStorage.getItem('tactical_rankings') || '[]');
+        if (Array.isArray(localRanks)) {
+          allRankings = localRanks;
+        }
+      } catch (err) {
+        console.warn('로컬 랭킹 로드 실패', err);
+        allRankings = [];
+      }
+    }
     
     const difficultySettings = {
       easy: {
@@ -2246,30 +2259,10 @@
     }
     
     async function saveScore(replaceExisting = false) {
-      if (!window.dataSdk || !dataInitialized) return;
-      
       const nameInput = document.getElementById('playerNameInput');
       const playerName = nameInput.value.trim() || '무명의 전사';
       currentPlayerName = playerName;
-      
-      const currentRankings = allRankings.filter(r => r.difficulty === currentDifficulty);
-      const existingRecord = currentRankings.find(r => r.name === playerName);
-      
-      if (existingRecord && !replaceExisting) {
-        document.getElementById('duplicateNameWarning').classList.remove('hidden');
-        return;
-      }
-      
-      document.getElementById('duplicateNameWarning').classList.add('hidden');
-      
-      const saveBtn = document.getElementById('saveScoreBtn');
-      saveBtn.disabled = true;
-      saveBtn.textContent = '저장 중...';
-      
-      if (replaceExisting && existingRecord && existingRecord.__backendId) {
-        await window.dataSdk.delete(existingRecord);
-      }
-      
+
       const newRecord = {
         name: playerName,
         kills: kills,
@@ -2277,14 +2270,78 @@
         difficulty: currentDifficulty,
         date: new Date().toISOString()
       };
-      
-      const result = await window.dataSdk.create(newRecord);
-      
-      if (result.isOk) {
-        nameInput.value = '';
-      } else {
-        saveBtn.disabled = false;
-        saveBtn.textContent = '기록 저장';
+
+      // 우선 기본 동작: Data SDK가 있으면 원래대로 서버 저장
+      if (window.dataSdk && dataInitialized) {
+        const currentRankings = allRankings.filter(r => r.difficulty === currentDifficulty);
+        const existingRecord = currentRankings.find(r => r.name === playerName);
+
+        if (existingRecord && !replaceExisting) {
+          document.getElementById('duplicateNameWarning').classList.remove('hidden');
+          return;
+        }
+
+        document.getElementById('duplicateNameWarning').classList.add('hidden');
+
+        const saveBtn = document.getElementById('saveScoreBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = '저장 중...';
+
+        if (replaceExisting && existingRecord && existingRecord.__backendId) {
+          await window.dataSdk.delete(existingRecord);
+        }
+
+        const result = await window.dataSdk.create(newRecord);
+
+        if (result.isOk) {
+          nameInput.value = '';
+        } else {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '기록 저장';
+        }
+
+        return;
+      }
+
+      // Data SDK가 없거나 초기화 안 된 경우: localStorage에 대체 저장
+      try {
+        const saveBtn = document.getElementById('saveScoreBtn');
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.textContent = '저장 중...';
+        }
+
+        let localRanks = JSON.parse(localStorage.getItem('tactical_rankings') || '[]');
+        const currentRankings = localRanks.filter(r => r.difficulty === currentDifficulty);
+        const existingRecordIdx = localRanks.findIndex(r => r.name === playerName && r.difficulty === currentDifficulty);
+
+        if (existingRecordIdx !== -1 && !replaceExisting) {
+          document.getElementById('duplicateNameWarning').classList.remove('hidden');
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '기록 저장'; }
+          return;
+        }
+
+        document.getElementById('duplicateNameWarning').classList.add('hidden');
+
+        if (existingRecordIdx !== -1 && replaceExisting) {
+          localRanks[existingRecordIdx] = Object.assign({}, localRanks[existingRecordIdx], {
+            kills: kills,
+            level: currentLevel,
+            date: new Date().toISOString()
+          });
+        } else {
+          localRanks.push(Object.assign({}, newRecord, { __backendId: null }));
+        }
+
+        localStorage.setItem('tactical_rankings', JSON.stringify(localRanks));
+        allRankings = localRanks;
+        displayRankings();
+        if (nameInput) nameInput.value = '';
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '기록 저장'; }
+      } catch (err) {
+        console.error('Local save failed', err);
+        const saveBtn = document.getElementById('saveScoreBtn');
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '기록 저장'; }
       }
     }
     
