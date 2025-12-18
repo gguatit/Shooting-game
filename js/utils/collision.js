@@ -54,6 +54,9 @@ function checkCollisions(gameState) {
                     gameState.kills++;
                     gameState.currentGameCoins++;
                     
+                    // 아이템 드롭
+                    dropItems(gameState, e.x, e.y);
+                    
                     // 20처치마다 10코인 획득
                     if (gameState.kills % 20 === 0) {
                       gameState.coins += 10;
@@ -102,6 +105,9 @@ function checkCollisions(gameState) {
             
             for (let d = 0; d < damageMultiplier; d++) {
               if (enemy.takeDamage(damageAmount, enemy.x, enemy.y)) {
+                // 아이템 드롭
+                dropItems(gameState, enemy.x, enemy.y);
+                
                 enemies.splice(i, 1);
                 gameState.kills++;
                 gameState.currentGameCoins++;
@@ -148,6 +154,9 @@ function checkCollisions(gameState) {
             
             for (let d = 0; d < damageMultiplier; d++) {
               if (enemy.takeDamage(damageAmount, enemy.x, enemy.y)) {
+                // 아이템 드롭
+                dropItems(gameState, enemy.x, enemy.y);
+                
                 enemies.splice(i, 1);
                 gameState.kills++;
                 gameState.currentGameCoins++;
