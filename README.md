@@ -84,11 +84,41 @@ npx http-server
 - Custom animation system
 
 ### Architecture
-- Single-file architecture (index.html)
+- **Modular file structure** with organized directories
 - Canvas-based 2D graphics engine
-- Object-oriented enemy and bullet management
+- Object-oriented class system for all game entities
 - State management for game flow
 - Event-driven input handling
+- Mobile touch controls with dual-joystick system
+
+### Project Structure
+```
+Shooting-game/
+├── css/
+│   ├── animations.css    # Animation keyframes
+│   └── styles.css        # Base styles
+├── js/
+│   ├── classes/          # Game entity classes
+│   │   ├── Particle.js   # Particle effects
+│   │   ├── HealthPack.js # Health recovery items
+│   │   ├── PowerUp.js    # Power-up buffs
+│   │   ├── Explosion.js  # Explosion effects
+│   │   ├── Bullet.js     # Bullet projectiles (7 types)
+│   │   ├── Enemy.js      # Enemy AI
+│   │   └── Player.js     # Player character
+│   ├── utils/            # Utility modules
+│   │   ├── config.js     # Game configuration
+│   │   ├── ui.js         # UI management
+│   │   ├── input.js      # Input handling (keyboard/mouse/touch)
+│   │   ├── collision.js  # Collision detection
+│   │   ├── rankings.js   # Leaderboard system
+│   │   ├── shop.js       # Weapon shop
+│   │   └── customization.js # Character customization
+│   ├── game.js           # Main game loop
+│   └── main.js           # Initialization
+├── index.html            # Game UI structure
+└── README.md             # Documentation
+```
 
 ### Performance
 - Optimized rendering pipeline

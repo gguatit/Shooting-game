@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Debug Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #0f172a; color: white; font-family: monospace; }
+        #canvas { border: 2px solid cyan; display: block; margin: 20px auto; }
+        #debug { margin: 20px; }
+        .info { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>Shooting Game Debug Test</h1>
+    <div id="debug">
+        <div class="info">클릭해서 총알 발사 테스트</div>
+        <div class="info">Bullets Count: <span id="bulletCount">0</span></div>
+        <div class="info">Mouse X: <span id="mouseX">0</span></div>
+        <div class="info">Mouse Y: <span id="mouseY">0</span></div>
+        <div class="info">Player Ammo: <span id="ammo">30</span></div>
+        <div class="info">Shoot Cooldown: <span id="cooldown">0</span></div>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script src="js/classes/Particle.js"></script>
+    <script src="js/classes/Bullet.js"></script>
+    <script src="js/classes/Player.js"></script>
+    <script src="js/utils/config.js"></script>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        window.gameCanvas = canvas;
+        
+        // 전역 배열 초기화
+        window.bullets = [];
+        window.particles = [];
+        
+        // 플레이어 생성
+        const player = new Player(canvas.width, canvas.height);
+        
+        // 마우스 위치
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let mouseDown = false;
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('mousedown', () => {
+            mouseDown = true;
+            console.log('Mouse down - trying to shoot');
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+        
+        // 게임 루프
+        function gameLoop() {
+            // 배경
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 플레이어 업데이트
+            player.update({}, { x: mouseX, y: mouseY }, false, null, canvas.width, canvas.height);
+            
+            // 발사 시도
+            if (mouseDown) {
+                const result = player.shoot({ x: mouseX, y: mouseY });
+                if (result) {
+                    console.log('Shot fired! Bullets:', window.bullets.length);
+                }
+            }
+            
+            // 총알 업데이트 및 그리기
+            window.bullets = window.bullets.filter(bullet => {
+                const outOfBounds = bullet.update();
+                if (!outOfBounds) {
+                    bullet.draw(ctx, defaultConfig);
+                }
+                return !outOfBounds;
+            });
+            
+            // 파티클 업데이트
+            window.particles = window.particles.filter(p => {
+                const dead = p.update();
+                if (!dead) p.draw(ctx);
+                return !dead;
+            });
+            
+            // 플레이어 그리기
+            player.draw(ctx, { x: mouseX, y: mouseY }, {}, { mainColor: '#22d3ee', secondaryColor: '#1e293b' });
+            
+            // 크로스헤어
+            ctx.strokeStyle = '#22d3ee';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(mouseX - 10, mouseY);
+            ctx.lineTo(mouseX + 10, mouseY);
+            ctx.moveTo(mouseX, mouseY - 10);
+            ctx.lineTo(mouseX, mouseY + 10);
+            ctx.stroke();
+            
+            // 디버그 정보 업데이트
+            document.getElementById('bulletCount').textContent = window.bullets.length;
+            document.getElementById('mouseX').textContent = mouseX.toFixed(0);
+            document.getElementById('mouseY').textContent = mouseY.toFixed(0);
+            document.getElementById('ammo').textContent = player.ammo + '/' + player.reserveAmmo;
+            document.getElementById('cooldown').textContent = player.shootCooldown;
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        console.log('Test initialized');
+        console.log('Player:', player);
+        console.log('Bullets array:', window.bullets);
+        gameLoop();
+    </script>
+</body>
+</html>
