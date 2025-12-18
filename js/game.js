@@ -176,7 +176,12 @@ function gameLoop() {
     
     // 탄약이 모두 소진되면 레벨 업
     if (state.player.ammo === 0 && state.player.reserveAmmo === 0 && !state.player.reloading) {
-      showUpgradeScreen(state.unlockedWeapons);
+      // 레벨업 시 기본 3종 무기는 항상 포함
+      const basicWeapons = ['assault', 'shotgun', 'smg'];
+      // 해금된 무기 중 기본 무기가 아닌 것들 추가
+      const additionalWeapons = state.unlockedWeapons.filter(w => !basicWeapons.includes(w));
+      const availableWeapons = [...basicWeapons, ...additionalWeapons];
+      showUpgradeScreen(availableWeapons);
       state.gameRunning = false;
     }
     
@@ -217,7 +222,7 @@ function startGame() {
   const canvas = window.gameCanvas;
   
   // 상태 초기화
-  state.gameRunning = true;
+  state.gameRunning = false; // 무기 선택 전까지는 false
   state.gamePaused = false;
   state.kills = 0;
   state.currentLevel = 1;
@@ -236,7 +241,7 @@ function startGame() {
   window.particles = state.particles;
   window.bullets = state.bullets;
   
-  window.gameRunning = true;
+  window.gameRunning = false;
   
   updateHUD(state);
   updateMobileControlsVisibility();
@@ -249,14 +254,13 @@ function startGame() {
   // 화면 정리
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('gameOver').classList.add('hidden');
-  document.getElementById('upgradeScreen').classList.add('hidden');
   document.getElementById('duplicateNameWarning').classList.add('hidden');
   document.getElementById('weaponShopScreen').classList.add('hidden');
   
-  // 1초 후 적 생성 시작
-  setTimeout(spawnEnemy, 1000);
-  
-  // 게임 루프 시작
+  // 게임 바로 시작 (기본 무기인 돌격소총으로 시작)
+  state.gameRunning = true;
+  window.gameRunning = true;
+  spawnEnemy();
   gameLoop();
 }
 
@@ -302,8 +306,8 @@ function upgradeWeapon(weaponType) {
   const state = window.gameState;
   
   if (state.player) {
-    state.player.setWeapon(weaponType, state.currentLevel);
     state.currentLevel++;
+    state.player.setWeapon(weaponType, state.currentLevel);
     updateHUD(state);
     hideUpgradeScreen();
     

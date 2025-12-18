@@ -15,11 +15,18 @@ Tactical Strike is an action-packed shooting game with a modular architecture, f
 - **Wave-based spawning** - Strategic enemy generation
 - **Advanced visual feedback** - Hit markers, damage flash, particle effects
 - **Ammunition management** - Reload mechanics with progress indicators
+- **Level-up system** - Select new weapon when ammo depleted, +30 reserve ammo bonus per level
 
-### Weapons Arsenal (10 Types)
-1. **AR-47 Phantom** - Balanced assault rifle (Default)
-2. **Shotgun** - Close-range spread attack (8 rounds)
-3. **SMG** - High fire rate (40 rounds)
+### Weapons Arsenal (12 Types)
+
+#### Starting Weapon (Game Start)
+1. **AR-47 Phantom** - Balanced assault rifle (30 rounds/90 reserve)
+
+#### First Level-Up Selection
+2. **Shotgun** - Close-range spread attack (8 rounds/32 reserve)
+3. **SMG** - High fire rate (40 rounds/120 reserve)
+
+#### Shop Purchase Weapons
 4. **Burst Rifle** - 3-round burst fire (300 coins)
 5. **Plasma Gun** - Energy projectiles (400 coins)
 6. **Double Shot** - Simultaneous dual bullets (500 coins)
@@ -41,6 +48,7 @@ Tactical Strike is an action-packed shooting game with a modular architecture, f
 ### Economy & Progression
 - **Coin system** - Earn 10 coins per 20 kills
 - **Weapon shop** - Purchase upgrades between levels
+- **Level-up bonus** - +30 reserve ammo per level increase
 - **Character customization** - 8 main colors, 8 secondary colors
 - **Leaderboard** - Cloud-based ranking with Data SDK integration
 - **Persistent saves** - Unlocked weapons carry over

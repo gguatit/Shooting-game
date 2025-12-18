@@ -52,6 +52,28 @@ const weaponConfigs = [
     cost: 0  // 기본 무기
   },
   { 
+    id: 'shotgun', 
+    name: '산탄총', 
+    desc: '근거리 확산 공격', 
+    ammo: '8발', 
+    speed: '느림', 
+    bgStyle: 'background: linear-gradient(135deg, #713f12 0%, #422006 100%);', 
+    borderColor: '#fb923c', 
+    textColor: '#fb923c',
+    cost: 0  // 기본 무기
+  },
+  { 
+    id: 'smg', 
+    name: '기관단총', 
+    desc: '빠른 연사 속도', 
+    ammo: '40발', 
+    speed: '매우 빠름', 
+    bgStyle: 'background: linear-gradient(135deg, #4c1d95 0%, #2e1065 100%);', 
+    borderColor: '#c084fc', 
+    textColor: '#c084fc',
+    cost: 0  // 기본 무기
+  },
+  { 
     id: 'burst', 
     name: '점사총', 
     desc: '3발 빠른 점사', 
