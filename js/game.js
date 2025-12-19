@@ -12,7 +12,7 @@ window.gameState = {
   // 게임 통계
   kills: 0,
   currentLevel: 1,
-  coins: 0,
+  coins: 300,
   currentGameCoins: 0,
   
   // 난이도
